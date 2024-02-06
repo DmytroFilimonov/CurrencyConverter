@@ -4,78 +4,88 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Приветствуем в CurrencyConverter!");
 
+        CurrencyConverterCLI converterCLI = new CurrencyConverterCLI();
+        converterCLI.start();
+    }
+}
 
-        Scanner scanner = new Scanner(System.in);
+class CurrencyConverter {
+    private final double[] currencyRates;
+    private final String[] availableCurrencies;
 
+    public CurrencyConverter() {
+        // установка значений по умолчанию через пустой конструктор
 
+        this.availableCurrencies = new String[]{"EURO", "USD", "TL"};
+        this.currencyRates = new double[]{1.0, 1.2, 10.0};
+    }
+
+    public CurrencyConverter(double[] currencyRates) {
+        this.currencyRates = currencyRates;
+        this.availableCurrencies = new String[currencyRates.length];
+        for (int i = 0; i < currencyRates.length; i++) {
+            this.availableCurrencies[i] = "Currency " + (i + 1);
+        }
+    }
+
+    public CurrencyConverter(double[] currencyRates, String[] availableCurrencies) {
+        this.currencyRates = currencyRates;
+        this.availableCurrencies = availableCurrencies;
+    }
+
+    public double[] getCurrencyRates() {
+        return currencyRates;
+    }
+
+    public String[] getAvailableCurrencies() {
+        return availableCurrencies;
+    }
+}
+
+class CurrencyConverterCLI {
+    private final Scanner scanner;
+    private final CurrencyConverter converter;
+
+    public CurrencyConverterCLI() {
+        scanner = new Scanner(System.in);
+        converter = new CurrencyConverter();
+    }
+
+    public void start() {
         int inpCurrency;
         int outCurrency;
         double sumToConvert;
 
-        double euroToUsdRate = 1.2;
-        double euroToTlRate = 10.0;
-
         do {
             System.out.println("Выберите исходную валюту:");
-            System.out.println("1. EURO");
-            System.out.println("2. USD");
-            System.out.println("3. TL");
-            System.out.println("4. Выход из программы");
+            String[] availableCurrencies = converter.getAvailableCurrencies();
+            for (int i = 0; i < availableCurrencies.length; i++) {
+                System.out.println((i + 1) + ". " + availableCurrencies[i]);
+            }
+            System.out.println((availableCurrencies.length + 1) + ". Выход из программы");
 
             inpCurrency = scanner.nextInt();
 
-            switch (inpCurrency) {
-                case 1:
-                    System.out.println("Вы выбрали EURO");
-                    break;
-                case 2:
-                    System.out.println("Вы выбрали USD");
-                    break;
-                case 3:
-                    System.out.println("Вы выбрали TL");
-                    break;
-                case 4:
-                    System.out.println("Выход из программы. До свидания!");
-                    break;
-                default:
-                    System.out.println("Неверный выбор. Попробуйте еще раз.");
-                    continue;
-            }
-
-
-            if (inpCurrency == 4) {
+            if (inpCurrency == availableCurrencies.length + 1) {
                 break;
             }
 
             System.out.println("Выберите целевую валюту:");
-            System.out.println("1. EURO");
-            System.out.println("2. USD");
-            System.out.println("3. TL");
+            for (int i = 0; i < availableCurrencies.length; i++) {
+                System.out.println((i + 1) + ". " + availableCurrencies[i]);
+            }
 
             outCurrency = scanner.nextInt();
 
             System.out.println("Введите сумму перевода (через запятую):");
             sumToConvert = scanner.nextDouble();
 
-            double result;
-            switch (outCurrency) {
-                case 1:
-                    result = sumToConvert;
-                    System.out.println("Результат конвертации: " + result + " EURO");
-                    break;
-                case 2:
-                    result = sumToConvert / euroToUsdRate;
-                    System.out.println("Результат конвертации: " + result + " USD");
-                    break;
-                case 3:
-                    result = sumToConvert / euroToTlRate;
-                    System.out.println("Результат конвертации: " + result + " TL");
-                    break;
-                default:
-                    System.out.println("Неверный выбор целевой валюты. Попробуйте еще раз.");
-            }
+            double[] currencyRates = converter.getCurrencyRates();
+            double result = sumToConvert / currencyRates[inpCurrency - 1] * currencyRates[outCurrency - 1];
 
-        } while (inpCurrency != 4);
+            System.out.println("Результат конвертации: " + result + " " + availableCurrencies[outCurrency - 1]);
+
+        } while (inpCurrency != converter.getAvailableCurrencies().length + 1);
 
         scanner.close();
     }
